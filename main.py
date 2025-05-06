@@ -9,14 +9,6 @@ import uvicorn
 
 app = FastAPI()
 
-
-
-if __name__ == "__main__":
-    # Fetch the PORT environment variable, default to 8000 if not set
-    port = int(os.getenv("PORT", 8000))
-
-    # Run the FastAPI app using Uvicorn on the given port
-    uvicorn.run(app, host="0.0.0.0", port=port)
     
 # Load environment variables from .env
 load_dotenv()
@@ -178,3 +170,8 @@ def chat_with_gpt(req: ChatRequest):
         return {"error": "Rate limit reached. Please wait and try again later."}
     except OpenAIError as e:
         return {"error": f"OpenAI API Error: {str(e)}"}
+
+if __name__ == "__main__":
+    import uvicorn
+    port = int(os.getenv("PORT", 8000))  # Default to 8000 for local dev
+    uvicorn.run(app, host="0.0.0.0", port=port)
