@@ -37,6 +37,10 @@ def retry_with_backoff(func, *args, retries=3, **kwargs):
             print(f"Rate limit hit. Retrying in {wait:.2f} seconds...")
             time.sleep(wait)
     raise RateLimitError("Rate limit exceeded after retries.")
+@app.head("/")
+def head_root():
+    return
+
 @app.get("/")
 def read_root():
     return {"message": "Rus Olive Lodge Skardu Chat Service is live!"}
