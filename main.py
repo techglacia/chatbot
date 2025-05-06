@@ -5,7 +5,21 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 from dotenv import load_dotenv
 from openai import OpenAI, RateLimitError, OpenAIError
+import uvicorn
 
+app = FastAPI()
+
+@app.get("/")
+def read_root():
+    return {"message": "Hello, World!"}
+
+if __name__ == "__main__":
+    # Fetch the PORT environment variable, default to 8000 if not set
+    port = int(os.getenv("PORT", 8000))
+
+    # Run the FastAPI app using Uvicorn on the given port
+    uvicorn.run(app, host="0.0.0.0", port=port)
+    
 # Load environment variables from .env
 load_dotenv()
 api_key = os.getenv("OPENAI_API_KEY")
