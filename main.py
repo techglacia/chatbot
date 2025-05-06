@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 from openai import OpenAI, RateLimitError, OpenAIError
 import uvicorn
 from fastapi.middleware.cors import CORSMiddleware
-app = FastAPI()
+
 
 
 app.add_middleware(
