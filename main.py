@@ -9,9 +9,7 @@ import uvicorn
 
 app = FastAPI()
 
-@app.get("/")
-def read_root():
-    return {"message": "Hello, World!"}
+
 
 if __name__ == "__main__":
     # Fetch the PORT environment variable, default to 8000 if not set
@@ -47,7 +45,10 @@ def retry_with_backoff(func, *args, retries=3, **kwargs):
             print(f"Rate limit hit. Retrying in {wait:.2f} seconds...")
             time.sleep(wait)
     raise RateLimitError("Rate limit exceeded after retries.")
-
+@app.get("/")
+def read_root():
+    return {"message": "Rus Olive Lodge Skardu Chat Service is live!"}
+    
 @app.post("/chat")
 def chat_with_gpt(req: ChatRequest):
     user_id = req.user_id
