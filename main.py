@@ -24,8 +24,8 @@ app.add_middleware(
 load_dotenv()
 api_key = os.getenv("OPENAI_API_KEY")
 
-# Initialize OpenAI client
-client = OpenAI(api_key=api_key)
+# Declare client as a global variable but won't initialize it until the first request
+client = None
 
 # Store chat history
 chat_history = {}
@@ -46,9 +46,10 @@ def retry_with_backoff(func, *args, retries=3, **kwargs):
             time.sleep(wait)
     raise RateLimitError("Rate limit exceeded after retries.")
 
-@app.head("/")
-def head_root():
-    return
+@app.head("/healthcheck")
+def healthcheck():
+    # Simple health check endpoint to keep the service warm
+    return {"status": "ok"}
 
 @app.get("/")
 def read_root():
@@ -56,8 +57,13 @@ def read_root():
     
 @app.post("/chat")
 def chat_with_gpt(req: ChatRequest):
+    global client
     user_id = req.user_id
     message = req.message
+
+    # Lazy initialization of OpenAI client to avoid cold start delay
+    if client is None:
+        client = OpenAI(api_key=api_key)
 
     # Initialize chat history for user if not exists
     if user_id not in chat_history:
@@ -77,14 +83,12 @@ Glacia Labs is a technology company that builds AI-powered web applications with
 The company is led by Yasir, the Founder and CEO and AI/ML Enginner as well, who is deeply passionate about technology, continuous learning, and creating meaningful solutions through AI and web technologies.
 
 Act professionally and assist users as a customer support representative of Glacia Labs. 
-We ahve teams members 
-Suleman Bashir Database Administator, Zakria Arbab Backend Developer, Hamna Ayub Frontend developer, Owias Afzal Product manager 
+We have teams members 
+Suleman Bashir Database Administrator, Zakria Arbab Backend Developer, Hamna Ayub Frontend developer, Owias Afzal Product manager 
 Company Bank Accounts: Bank AlFalah Limited
 02111009378995 
 PK62ALFH0211001009378995
-Rus Olive Lodge Skardu
-
-  ..."""
+Rus Olive Lodge Skardu"""
         )
     }
 
@@ -92,7 +96,7 @@ Rus Olive Lodge Skardu
     messages = [system_prompt] + chat_history[user_id][-10:]
 
     try:
-        # Use new OpenAI client format and model
+        # Use OpenAI client to generate response
         response = retry_with_backoff(
             client.chat.completions.create,
             model="gpt-4o-mini",
